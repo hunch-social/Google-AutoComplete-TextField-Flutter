@@ -82,7 +82,8 @@ class _GooglePlaceAutoCompleteTextFieldState
   final subject = new PublishSubject<String>();
   OverlayEntry? _overlayEntry;
   List<Prediction> alPredictions = [];
-
+  bool _preventRequest = false;
+  
   TextEditingController controller = TextEditingController();
   final LayerLink _layerLink = LayerLink();
   bool isSearched = false;
@@ -229,11 +230,17 @@ alPredictions.addAll(subscriptionResponse.predictions!);
   }
 
   textChanged(String text) async {
+    if (_preventRequest) {
+      _preventRequest = false;
+      return;
+    }
     if (text.isNotEmpty) {
       getLocation(text);
     } else {
       alPredictions.clear();
-      this._overlayEntry!.remove();
+      if (this._overlayEntry != null) {
+        this._overlayEntry!.remove();
+      }
     }
   }
 
@@ -286,11 +293,12 @@ alPredictions.addAll(subscriptionResponse.predictions!);
   }
 
   removeOverlay() {
+    _preventRequest = true;
     alPredictions.clear();
-    this._overlayEntry = this._createOverlayEntry();
-
-    Overlay.of(context).insert(this._overlayEntry!);
-    this._overlayEntry!.markNeedsBuild();
+    if (this._overlayEntry != null) {
+      this._overlayEntry!.remove();
+      this._overlayEntry = null;
+    }
   }
 
   Future<void> getPlaceDetailsFromPlaceId(Prediction prediction) async {
