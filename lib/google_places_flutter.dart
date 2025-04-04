@@ -205,7 +205,8 @@ class _GooglePlaceAutoCompleteTextFieldState
       alPredictions.clear();
       if (subscriptionResponse.predictions!.length > 0 &&
           (widget.textEditingController.text.toString().trim()).isNotEmpty) {
-        alPredictions.addAll(subscriptionResponse.predictions!);
+subscriptionResponse.predictions!.removeWhere((element)=> element.description==text);
+alPredictions.addAll(subscriptionResponse.predictions!);
       }
 
       this._overlayEntry = null;
