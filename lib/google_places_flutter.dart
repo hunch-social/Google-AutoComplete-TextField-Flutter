@@ -337,8 +337,10 @@ alPredictions.addAll(subscriptionResponse.predictions!);
     if (this._overlayEntry != null) {
       try {
         this._overlayEntry?.remove();
+        this._overlayEntry = null;
       } catch (e) {}
     }
+    subject.add("");
   }
 
   _showCrossIconWidget() {
