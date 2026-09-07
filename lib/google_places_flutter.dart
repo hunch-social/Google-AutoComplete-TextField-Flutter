@@ -44,6 +44,16 @@ class GooglePlaceAutoCompleteTextField extends StatefulWidget {
   /// This is expressed in **meters**
   final int? radius;
 
+  /// Extra HTTP headers sent with every Places request.
+  ///
+  /// Lets an application-restricted Google API key pass Google's identity
+  /// check even though this widget calls the Places web service over plain
+  /// HTTP rather than through a native SDK: send `X-Ios-Bundle-Identifier` on
+  /// iOS, `X-Android-Package` + `X-Android-Cert` (signing-cert SHA-1, uppercase
+  /// hex, no colons) on Android. Read at request time, so a value that arrives
+  /// after the first build is picked up on the next keystroke.
+  final Map<String, String>? headers;
+
   GooglePlaceAutoCompleteTextField(
       {required this.textEditingController,
       required this.googleAPIKey,
@@ -70,6 +80,7 @@ class GooglePlaceAutoCompleteTextField extends StatefulWidget {
       this.radius,
       this.formSubmitCallback,
       this.textInputAction,
+      this.headers,
       this.clearData});
 
   @override
@@ -185,7 +196,8 @@ class _GooglePlaceAutoCompleteTextFieldState
       String proxyURL = "https://cors-anywhere.herokuapp.com/";
       String url = kIsWeb ? proxyURL + apiURL : apiURL;
 
-      Response response = await _dio.get(url);
+      Response response =
+          await _dio.get(url, options: Options(headers: widget.headers));
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
       Map map = response.data;
@@ -309,6 +321,7 @@ alPredictions.addAll(subscriptionResponse.predictions!);
     try {
       Response response = await _dio.get(
         url,
+        options: Options(headers: widget.headers),
       );
 
       PlaceDetails placeDetails = PlaceDetails.fromJson(response.data);
